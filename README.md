@@ -1,6 +1,7 @@
 # Edith
-
 Ad Decisioning Service
+
+<img src="/edith.gif" width="200" alt="Edith GIF">
 
 ## What's going on here
 
