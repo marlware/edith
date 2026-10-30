@@ -41,6 +41,18 @@ The second job is counting views.
 - **sbt** builds that job into one file
 - **Docker** runs the Flink cluster
 
+Here's how the pieces connect.
+
+```mermaid
+flowchart LR
+    Agnes["Agnes"] -->|asks for an ad| Edith["Edith: Java + Spring Boot"]
+    Edith --> Redis[("Redis")]
+    Agnes -->|ad was seen| Kafka["Kafka"]
+    Kafka --> Edith
+    Kafka --> Flink["Flink job: Scala"]
+    Flink -->|counts| Redis
+```
+
 ## Trying it out
 
 Here's what you'll need.
