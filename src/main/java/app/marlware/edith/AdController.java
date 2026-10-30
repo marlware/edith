@@ -8,12 +8,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Targeting data lives in Redis (seeded by {@link TargetingSeeder}):
@@ -24,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class AdController {
 
+    static final String IMPRESSIONS_TOPIC = "ad-impressions";
     private static final String DEFAULT_INTEREST = "general";
 
     public record Ad(String id, String advertiser, String hlsPath) {}
@@ -32,6 +34,7 @@ public class AdController {
 
     private final StringRedisTemplate redis;
     private final List<Impression> impressions = new CopyOnWriteArrayList<>();
+    private final JsonMapper json = JsonMapper.builder().build();
 
     public AdController(StringRedisTemplate redis) {
         this.redis = redis;
@@ -54,10 +57,10 @@ public class AdController {
         return new Ad(adId, (String) ad.get("advertiser"), (String) ad.get("hlsPath"));
     }
 
-    @PostMapping("/impressions")
-    public Map<String, Object> record(@RequestBody Impression imp) {
-        impressions.add(imp);
-        return Map.of("recorded", true, "total", impressions.size());
+    // Agnes publishes an impression after each ad plays.
+    @KafkaListener(topics = IMPRESSIONS_TOPIC)
+    public void record(String message) {
+        impressions.add(json.readValue(message, Impression.class));
     }
 
     @GetMapping("/impressions")
