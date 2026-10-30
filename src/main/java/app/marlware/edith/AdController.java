@@ -1,34 +1,57 @@
 package app.marlware.edith;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * Targeting data lives in Redis (seeded by {@link TargetingSeeder}):
+ *   viewer:{id}      hash  {interest}
+ *   ad:{id}          hash  {advertiser, hlsPath}
+ *   ads:{interest}   set   of ad ids eligible for that interest
+ */
 @RestController
 public class AdController {
+
+    private static final String DEFAULT_INTEREST = "general";
 
     public record Ad(String id, String advertiser, String hlsPath) {}
 
     public record Impression(String adId, String viewerId, String assetId) {}
 
-    private final List<Ad> ads = List.of(
-            new Ad("ad-1", "Acme Soda", "/hls/ads/acme/index.m3u8"),
-            new Ad("ad-2", "Globex Shoes", "/hls/ads/globex/index.m3u8"),
-            new Ad("ad-3", "Initech Cloud", "/hls/ads/initech/index.m3u8"));
-
+    private final StringRedisTemplate redis;
     private final List<Impression> impressions = new CopyOnWriteArrayList<>();
+
+    public AdController(StringRedisTemplate redis) {
+        this.redis = redis;
+    }
 
     @GetMapping("/ads")
     public Ad select(@RequestParam String viewerId) {
-        // Stand-in for targeting: pick deterministically per viewer.
-        return ads.get(Math.floorMod(viewerId.hashCode(), ads.size()));
+        Object interest = redis.opsForHash().get("viewer:" + viewerId, "interest");
+        Set<String> members = redis.opsForSet().members("ads:" + (interest != null ? interest : DEFAULT_INTEREST));
+        if (members == null || members.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no eligible ads");
+        }
+
+        // Sorted so the same viewer gets a stable pick.
+        List<String> eligible = new ArrayList<>(members);
+        eligible.sort(null);
+        String adId = eligible.get(Math.floorMod(viewerId.hashCode(), eligible.size()));
+
+        Map<Object, Object> ad = redis.opsForHash().entries("ad:" + adId);
+        return new Ad(adId, (String) ad.get("advertiser"), (String) ad.get("hlsPath"));
     }
 
     @PostMapping("/impressions")
