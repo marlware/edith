@@ -1,10 +1,11 @@
 # Edith
 
-Ad Decisioning Service
+- ad decisioning service
+- full name: Event-Driven Intelligent Targeting Hub
 
 ## What's going on here
 
-Edith is one of three small projects. Together, they pretend to be a video streaming service. Think of a tiny version of what's behind Netflix or YouTube. Everything is simulated, so the ads are just little test videos. But the pieces really do talk to each other.
+Edith is one of three small projects. Together, they pretend to be a video streaming service. Everything is simulated, so the ads are just little test videos. But the pieces really do talk to each other.
 
 - **[Margo](https://github.com/marlware/margo)** checks new videos before anyone can watch them
 - **Edith** (this one) picks which ad to show and counts how many times each ad was seen
@@ -28,6 +29,19 @@ The second job is counting views.
 - Edith reads those notes and saves them
 - A separate counting job keeps a running total for each ad
 - The totals are available at `/stats`
+
+## Why these technologies
+
+Every tool here earns its spot. Here's what each one does for Edith.
+
+- **Java and Spring Boot** make it quick to build the web service that picks ads
+- **Redis** keeps viewer interests and ads in memory, so Edith can find a match in the moment a video starts
+- **Kafka** lets Agnes report a view and move on without waiting for Edith
+- Kafka also lets Edith work through a burst of views at its own pace
+- **Flink** is built for counting events as they stream in, so it keeps a running total for each ad
+- **Scala** is the language the counting job is written in, and it runs on the same Java platform as Flink
+- **sbt** builds that job into a single file you can hand to Flink
+- **Docker** runs the Flink cluster in containers, so the job works no matter which Java is on your computer
 
 ## Trying it out
 
