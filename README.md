@@ -33,16 +33,13 @@ The second job is counting views.
 
 ## Why these technologies
 
-Every tool here earns its spot. Here's what each one does for Edith.
-
-- **Java and Spring Boot** make it quick to build the web service that picks ads
-- **Redis** keeps viewer interests and ads in memory, so Edith can find a match in the moment a video starts
-- **Kafka** lets Agnes report a view and move on without waiting for Edith
-- Kafka also lets Edith work through a burst of views at its own pace
-- **Flink** is built for counting events as they stream in, so it keeps a running total for each ad
-- **Scala** is the language the counting job is written in, and it runs on the same Java platform as Flink
-- **sbt** builds that job into a single file you can hand to Flink
-- **Docker** runs the Flink cluster in containers, so the job works no matter which Java is on your computer
+- **Java and Spring Boot** make web services quick to build
+- **Redis** finds matching ads fast
+- **Kafka** lets Agnes report a view without waiting
+- **Flink** keeps a running count for each ad
+- **Scala** is the language the counting job is written in
+- **sbt** builds that job into one file
+- **Docker** runs the Flink cluster
 
 ## Trying it out
 
