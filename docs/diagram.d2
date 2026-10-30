@@ -1,0 +1,27 @@
+# Regenerate: d2 --layout elk --pad 30 docs/diagram.d2 docs/diagram.svg
+direction: right
+*.style.border-radius: 14
+
+agnes: Agnes
+
+edith: Edith {
+  grid-rows: 1
+  java: Java {shape: image; icon: https://cdn.simpleicons.org/openjdk; width: 56; height: 56}
+  spring: Spring Boot {shape: image; icon: https://cdn.simpleicons.org/springboot; width: 56; height: 56}
+}
+
+kafka: Kafka {shape: image; icon: https://cdn.simpleicons.org/apachekafka; width: 72; height: 72}
+redis: Redis {shape: image; icon: https://cdn.simpleicons.org/redis; width: 72; height: 72}
+
+counting: Counting job {
+  grid-rows: 1
+  scala: Scala {shape: image; icon: https://cdn.simpleicons.org/scala; width: 56; height: 56}
+  flink: Flink {shape: image; icon: https://cdn.simpleicons.org/apacheflink; width: 56; height: 56}
+}
+
+agnes -> edith: asks for an ad
+agnes -> kafka: ad was seen
+kafka -> edith
+kafka -> counting
+edith -> redis
+counting -> redis: counts

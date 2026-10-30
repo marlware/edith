@@ -43,15 +43,7 @@ The second job is counting views.
 
 Here's how the pieces connect.
 
-```mermaid
-flowchart LR
-    Agnes["Agnes"] -->|asks for an ad| Edith["Edith: Java + Spring Boot"]
-    Edith --> Redis[("Redis")]
-    Agnes -->|ad was seen| Kafka["Kafka"]
-    Kafka --> Edith
-    Kafka --> Flink["Flink job: Scala"]
-    Flink -->|counts| Redis
-```
+<img src="docs/diagram.svg" alt="How Agnes, Edith, Kafka, Redis, and the counting job connect">
 
 ## Trying it out
 
