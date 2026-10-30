@@ -63,6 +63,12 @@ public class AdController {
         impressions.add(json.readValue(message, Impression.class));
     }
 
+    // Per-ad counts computed by the Flink job (flink/), stored in Redis.
+    @GetMapping("/stats")
+    public Map<Object, Object> stats() {
+        return redis.opsForHash().entries("impressions:byAd");
+    }
+
     @GetMapping("/impressions")
     public List<Impression> impressions() {
         return impressions;

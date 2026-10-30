@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# sbt
+flink/target/
+flink/project/target/
+flink/project/project/
