@@ -1,7 +1,8 @@
 # Edith
-
 - ad decisioning service
 - full name: Event-Driven Intelligent Targeting Hub
+
+<img src="/edith.gif" width="200" alt="Edith GIF">
 
 ## What's going on here
 
