@@ -41,8 +41,6 @@ The second job is counting views.
 - **sbt** builds that job into one file
 - **Docker** runs the Flink cluster
 
-Here's how the pieces connect.
-
 <img src="docs/diagram.svg" alt="How Agnes, Edith, Kafka, Redis, and the counting job connect">
 
 ## Trying it out
